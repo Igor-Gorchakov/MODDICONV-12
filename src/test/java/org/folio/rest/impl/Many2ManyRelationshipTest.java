@@ -4,14 +4,17 @@ import com.jayway.restassured.RestAssured;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.http.HttpStatus;
+import org.folio.dao.many2many.EmployeeDao;
+import org.folio.dao.many2many.LocationDao;
+import org.folio.dao.many2many.TicketDao;
 import org.folio.rest.jaxrs.model.Employee;
 import org.folio.rest.jaxrs.model.Location;
 import org.folio.rest.jaxrs.model.Ticket;
+import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.persist.PostgresClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import java.util.UUID;
-
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -195,6 +198,22 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
 
   @Override
   public void clearTables(TestContext context) {
-
+    PostgresClient.getInstance(vertx, TENANT_ID).delete(TicketDao.TABLE, new Criterion(), ticketTableDeleteEvent -> {
+      if (ticketTableDeleteEvent.failed()) {
+        context.fail(ticketTableDeleteEvent.cause());
+      } else {
+        PostgresClient.getInstance(vertx, TENANT_ID).delete(EmployeeDao.TABLE, new Criterion(), employeeTableDeleteEvent -> {
+          if (employeeTableDeleteEvent.failed()) {
+            context.fail(employeeTableDeleteEvent.cause());
+          } else {
+            PostgresClient.getInstance(vertx, TENANT_ID).delete(LocationDao.TABLE, new Criterion(), locationTableDeleteEvent -> {
+              if (locationTableDeleteEvent.failed()) {
+                context.fail(locationTableDeleteEvent.cause());
+              }
+            });
+          }
+        });
+      }
+    });
   }
 }
