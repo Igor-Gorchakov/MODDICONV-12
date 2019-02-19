@@ -48,21 +48,8 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .withPassportId(passport.getId());
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(passport)
-      .when()
-      .post(PASSPORT_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(person)
-      .when()
-      .post(PERSON_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    savePassport(passport);
+    savePerson(person);
 
     //then
     RestAssured.given()
@@ -91,13 +78,7 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .withPassportId(null);
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(person)
-      .when()
-      .post(PERSON_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    savePerson(person);
   }
 
   /**
@@ -117,22 +98,9 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
     Passport passport = new Passport().withId(UUID.randomUUID().toString()).withSeries("EE009122");
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(passport)
-      .when()
-      .post(PASSPORT_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
+    savePassport(passport);
     //then
-    RestAssured.given()
-      .spec(spec)
-      .body(person)
-      .when()
-      .post(PERSON_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    savePerson(person);
   }
 
   /**
@@ -154,13 +122,7 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
     Passport passport = new Passport().withId(UUID.randomUUID().toString()).withSeries("EE0011209");
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(passport)
-      .when()
-      .post(PASSPORT_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    savePassport(passport);
 
     //then
     RestAssured.given()
@@ -189,21 +151,8 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
     Passport passport = new Passport().withId(passportId).withSeries("ZA780012");
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(passport)
-      .when()
-      .post(PASSPORT_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(person1)
-      .when()
-      .post(PERSON_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    savePassport(passport);
+    savePerson(person1);
 
     //then
     RestAssured.given()
@@ -213,6 +162,26 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .post(PERSON_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+  }
+
+  private void savePerson(Person person) {
+    RestAssured.given()
+      .spec(spec)
+      .body(person)
+      .when()
+      .post(PERSON_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
+  }
+
+  private void savePassport(Passport passport) {
+    RestAssured.given()
+      .spec(spec)
+      .body(passport)
+      .when()
+      .post(PASSPORT_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
   }
 
   @Override

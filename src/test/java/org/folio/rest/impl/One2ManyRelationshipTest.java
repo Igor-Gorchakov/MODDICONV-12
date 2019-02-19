@@ -43,29 +43,9 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
     Detail rightWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("right wing").withAirPlaneId(a380.getId());
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(a380)
-      .when()
-      .post(AIRPLANE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(leftWing)
-      .when()
-      .post(DETAIL_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(rightWing)
-      .when()
-      .post(DETAIL_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveAirPlane(a380);
+    saveDetail(leftWing);
+    saveDetail(rightWing);
 
     // then
     RestAssured.given()
@@ -98,14 +78,8 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
     // given
     Detail detail = new Detail().withId(UUID.randomUUID().toString()).withCaption("wing").withAirPlaneId(null);
 
-    // when
-    RestAssured.given()
-      .spec(spec)
-      .body(detail)
-      .when()
-      .post(DETAIL_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    // then
+    saveDetail(detail);
   }
 
   /**
@@ -123,13 +97,7 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .withAirPlaneId(null);
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(a370)
-      .when()
-      .post(AIRPLANE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveAirPlane(a370);
 
     // then
     RestAssured.given()
@@ -154,27 +122,14 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
   public void shouldReturn422Response_IfReferenceToAirPlaneIsWrong() {
     // given
     String wrongAirPlaneReference = UUID.randomUUID().toString();
-    AirPlane a360 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
-    Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing").withAirPlaneId(a360.getId());
+    AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
+    Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing").withAirPlaneId(a370.getId());
     Detail rightWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("right wing")
       .withAirPlaneId(wrongAirPlaneReference);
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(a360)
-      .when()
-      .post(AIRPLANE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(leftWing)
-      .when()
-      .post(DETAIL_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveAirPlane(a370);
+    saveDetail(leftWing);
 
     // then
     RestAssured.given()
@@ -185,7 +140,6 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
-    // then
     RestAssured.given()
       .spec(spec)
       .when()
@@ -193,7 +147,27 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .then()
       .statusCode(HttpStatus.SC_OK)
       .body("id", is(leftWing.getId()))
-      .body("airPlaneId", is(a360.getId()));
+      .body("airPlaneId", is(a370.getId()));
+  }
+
+  private void saveDetail(Detail leftWing) {
+    RestAssured.given()
+      .spec(spec)
+      .body(leftWing)
+      .when()
+      .post(DETAIL_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
+  }
+
+  private void saveAirPlane(AirPlane airPlane) {
+    RestAssured.given()
+      .spec(spec)
+      .body(airPlane)
+      .when()
+      .post(AIRPLANE_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
   }
 
   @Override

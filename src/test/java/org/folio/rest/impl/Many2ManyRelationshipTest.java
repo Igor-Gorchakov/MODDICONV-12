@@ -14,7 +14,9 @@ import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.UUID;
+
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -30,55 +32,36 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
 
   /**
    * Testing m2m happy path.
+   * Employee has 2 Locations.
    * Testing fk referential integrity.
    * 1. Create Employee
-   * 2. Create Location
-   * 3. Create Ticket linked to Employee and Location
+   * 2. Create Location California
+   * 3. Create Ticket1 linked to Employee and Location California
    * 4. Save Employee and Location
-   * 5. Try to save Ticket
+   * 5. Try to save Ticket1
+   * 6. Create Location Colorado
+   * 7. Create Ticket2 linked to Employee and Location Colorado
+   * 8. Try to save Ticket2
    */
   @Test
   public void shouldSaveTicketWithEmployeeAndLocation() {
     // given
     Employee employee = new Employee().withId(UUID.randomUUID().toString()).withName("Carl");
-    Location location = new Location().withId(UUID.randomUUID().toString()).withCaption("California");
-    Ticket ticket = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(employee.getId()).withLocationId(location.getId());
+    Location california = new Location().withId(UUID.randomUUID().toString()).withCaption("California");
+    saveEmployee(employee);
+    saveLocation(california);
+
+    Ticket ticketToCalifornia = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(employee.getId()).withLocationId(california.getId());
+    saveTicket(ticketToCalifornia);
+
+    Location boston = new Location().withId(UUID.randomUUID().toString()).withCaption("Boston");
+    Ticket ticket = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(employee.getId()).withLocationId(boston.getId());
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(employee)
-      .when()
-      .post(EMPLOYEE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(location)
-      .when()
-      .post(LOCATION_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(ticket)
-      .when()
-      .post(TICKET_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveLocation(boston);
 
     // then
-    RestAssured.given()
-      .spec(spec)
-      .when()
-      .get(TICKET_SERVICE_URL + "/" + ticket.getId())
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .body("id", is(ticket.getId()))
-      .body("employeeId", is(employee.getId()))
-      .body("locationId", is(location.getId()));
+    saveTicket(ticket);
   }
 
   /**
@@ -127,21 +110,8 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
     Ticket ticket = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(null).withLocationId(null);
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(employee)
-      .when()
-      .post(EMPLOYEE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(location)
-      .when()
-      .post(LOCATION_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveEmployee(employee);
+    saveLocation(location);
 
     // then
     RestAssured.given()
@@ -170,21 +140,8 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
       .withLocationId(UUID.randomUUID().toString());
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(employee)
-      .when()
-      .post(EMPLOYEE_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
-
-    RestAssured.given()
-      .spec(spec)
-      .body(location)
-      .when()
-      .post(LOCATION_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveEmployee(employee);
+    saveLocation(location);
 
     // then
     RestAssured.given()
@@ -194,6 +151,36 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
       .post(TICKET_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+  }
+
+  private void saveLocation(Location location) {
+    RestAssured.given()
+      .spec(spec)
+      .body(location)
+      .when()
+      .post(LOCATION_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
+  }
+
+  private void saveEmployee(Employee employee) {
+    RestAssured.given()
+      .spec(spec)
+      .body(employee)
+      .when()
+      .post(EMPLOYEE_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
+  }
+
+  private void saveTicket(Ticket ticketToCalifornia) {
+    RestAssured.given()
+      .spec(spec)
+      .body(ticketToCalifornia)
+      .when()
+      .post(TICKET_SERVICE_URL)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
   }
 
   @Override
