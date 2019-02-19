@@ -1,0 +1,127 @@
+{
+  "tables": [
+    {
+      "tableName": "employees",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "locations",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "tickets",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fieldName": "employeeId",
+          "targetTable": "employees",
+          "tOps": "ADD"
+        },
+        {
+          "fieldName": "locationId",
+          "targetTable": "locations",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "airplanes",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "details",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fieldName": "airPlaneId",
+          "targetTable": "airplanes",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "passports",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
+      "tableName": "persons",
+      "withMetadata": false,
+      "pkColumnName": "_id",
+      "generateId": false,
+      "withAuditing": false,
+      "uniqueIndex": [
+        {
+          "fieldName": "id",
+          "tOps": "ADD"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fieldName": "passportId",
+          "targetTable": "passports",
+          "tOps": "ADD"
+        }
+      ],
+      "uniqueIndex": [
+        {
+          "fieldName": "passportId",
+          "tOps": "ADD"
+        }
+      ]
+    }
+  ]
+}

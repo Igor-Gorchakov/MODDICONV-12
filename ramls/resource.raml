@@ -1,0 +1,163 @@
+#%RAML 1.0
+
+title: Data Import Converter Storage
+version: v1.0
+protocols: [ HTTP, HTTPS ]
+baseUri: http://localhost
+
+documentation:
+  - title: Data Import Converter Storage API
+    content: API for managing data import profiles
+
+types:
+  employee: !include entities/many2many/employee.json
+  location: !include entities/many2many/location.json
+  ticket: !include entities/many2many/ticket.json
+  detail: !include entities/one2many/detail.json
+  airPlane: !include entities/one2many/airPlane.json
+  passport: !include entities/one2one/passport.json
+  person: !include entities/one2one/person.json
+
+/resource:
+  /employee:
+    post:
+      body:
+        application/json:
+          schema: employee
+      responses:
+        201:
+          body:
+            application/json:
+              type: employee
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+  /location:
+    post:
+      body:
+        application/json:
+          schema: location
+      responses:
+        201:
+          body:
+            application/json:
+              type: location
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+  /ticket:
+    post:
+      body:
+        application/json:
+          schema: ticket
+      responses:
+        201:
+          body:
+            application/json:
+              type: ticket
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    /{id}:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                schema: ticket
+          500:
+            description: "Internal server error"
+            body:
+              text/plain:
+                example: "Internal server error"
+  /detail:
+    post:
+      body:
+        application/json:
+          schema: detail
+      responses:
+        201:
+          body:
+            application/json:
+              type: detail
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    /{id}:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                schema: detail
+          500:
+            description: "Internal server error"
+            body:
+              text/plain:
+                example: "Internal server error"
+  /airPlane:
+    post:
+      body:
+        application/json:
+          schema: airPlane
+      responses:
+        201:
+          body:
+            application/json:
+              type: airPlane
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+  /passport:
+    post:
+      body:
+        application/json:
+          schema: passport
+      responses:
+        201:
+          body:
+            application/json:
+              type: passport
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+  /person:
+    post:
+      body:
+        application/json:
+          schema: person
+      responses:
+        201:
+          body:
+            application/json:
+              type: person
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    /{id}:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                schema: person
+          500:
+            description: "Internal server error"
+            body:
+              text/plain:
+                example: "Internal server error"
+

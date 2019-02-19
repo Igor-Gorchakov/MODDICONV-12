@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "Ticket",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "UUID",
+      "type": "string"
+    },
+    "employeeId": {
+      "description": "UUID",
+      "type": "string"
+    },
+    "locationId": {
+      "description": "UUID",
+      "type": "string"
+    }
+  }
+}

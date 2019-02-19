@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "AirPlane",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "UUID",
+      "type": "string"
+    },
+    "height": {
+      "description": "Biometric height in sm",
+      "type": "integer"
+    },
+    "weight": {
+      "description": "Biometric weight in kg",
+      "type": "integer"
+    },
+    "passportId": {
+      "description": "UUID",
+      "type": "string"
+    }
+  }
+}
