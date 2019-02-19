@@ -32,36 +32,41 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
 
   /**
    * Testing m2m happy path.
-   * Employee has 2 Locations.
+   * Testing case when 2 Employees has 2 Locations.
    * Testing fk referential integrity.
-   * 1. Create Employee
-   * 2. Create Location California
-   * 3. Create Ticket1 linked to Employee and Location California
-   * 4. Save Employee and Location
-   * 5. Try to save Ticket1
-   * 6. Create Location Colorado
-   * 7. Create Ticket2 linked to Employee and Location Colorado
-   * 8. Try to save Ticket2
+   * 1. Create Employee Carl and Location California.
+   * 2. Create Employee Alice and Location Boston.
+   * 3. Save Employees and Locations
+   * 4. Create Ticket to Carl to fly to California
+   * 5. Create Ticket to Carl to fly to Boston
+   * 6. Create Ticket to Alice to fly to California
+   * 7. Create Ticket to Alice to fly to Boston
+   * 8. Try to save tickets
    */
   @Test
-  public void shouldSaveTicketWithEmployeeAndLocation() {
+  public void shouldSaveTickets() {
     // given
-    Employee employee = new Employee().withId(UUID.randomUUID().toString()).withName("Carl");
+    Employee carl = new Employee().withId(UUID.randomUUID().toString()).withName("Carl");
+    Employee alice = new Employee().withId(UUID.randomUUID().toString()).withName("Alice");
     Location california = new Location().withId(UUID.randomUUID().toString()).withCaption("California");
-    saveEmployee(employee);
-    saveLocation(california);
-
-    Ticket ticketToCalifornia = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(employee.getId()).withLocationId(california.getId());
-    saveTicket(ticketToCalifornia);
-
     Location boston = new Location().withId(UUID.randomUUID().toString()).withCaption("Boston");
-    Ticket ticket = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(employee.getId()).withLocationId(boston.getId());
 
-    // when
+    saveEmployee(carl);
+    saveEmployee(alice);
+    saveLocation(california);
     saveLocation(boston);
 
+    // when
+    Ticket carlToCalifornia = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(carl.getId()).withLocationId(california.getId());
+    Ticket carlToBoston = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(carl.getId()).withLocationId(boston.getId());
+    Ticket aliceToCalifornia = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(alice.getId()).withLocationId(california.getId());
+    Ticket aliceToBoston = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(alice.getId()).withLocationId(boston.getId());
+
     // then
-    saveTicket(ticket);
+    saveTicket(carlToCalifornia);
+    saveTicket(carlToBoston);
+    saveTicket(aliceToCalifornia);
+    saveTicket(aliceToBoston);
   }
 
   /**
