@@ -64,9 +64,7 @@ public abstract class AbstractRestVerticleTest {
   public static void tearDownClass(final TestContext context) {
     Async async = context.async();
     vertx.close(context.asyncAssertSuccess(res -> {
-      if (useExternalDatabase.equals("embedded")) {
-        PostgresClient.stopEmbeddedPostgres();
-      }
+      PostgresClient.stopEmbeddedPostgres();
       async.complete();
     }));
   }
