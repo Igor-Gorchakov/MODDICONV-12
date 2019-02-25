@@ -21,11 +21,9 @@ import java.util.UUID;
 public abstract class AbstractRestVerticleTest {
 
   static final String TENANT_ID = "diku";
-  private static final String GET_USER_URL = "/users?query=id==";
   static Vertx vertx;
   static RequestSpecification spec;
   private static String USER_ID = UUID.randomUUID().toString();
-  private static String useExternalDatabase;
   private static int PORT = NetworkUtils.nextFreePort();
   private static int MOCK_PORT = NetworkUtils.nextFreePort();
   private static String BASE_URL = "http://localhost:";
