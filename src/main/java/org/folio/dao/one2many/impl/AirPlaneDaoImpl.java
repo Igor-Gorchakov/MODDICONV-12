@@ -4,14 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import org.folio.dao.one2many.AirPlaneDao;
 import org.folio.rest.jaxrs.model.AirPlane;
-import org.folio.rest.persist.Criteria.Criteria;
-import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.interfaces.Results;
-
-import java.util.Optional;
-
-import static org.folio.dataimport.util.DaoUtil.constructCriteria;
 
 public class AirPlaneDaoImpl implements AirPlaneDao {
 

@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import com.jayway.restassured.RestAssured;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.http.HttpStatus;
@@ -190,17 +191,21 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
 
   @Override
   public void clearTables(TestContext context) {
-    PostgresClient.getInstance(vertx, TENANT_ID).delete(TicketDao.TABLE, new Criterion(), ticketTableDeleteEvent -> {
+    Async async = context.async();
+    PostgresClient pgClient = PostgresClient.getInstance(vertx, TENANT_ID);
+    pgClient.delete(TicketDao.TABLE, new Criterion(), ticketTableDeleteEvent -> {
       if (ticketTableDeleteEvent.failed()) {
         context.fail(ticketTableDeleteEvent.cause());
       } else {
-        PostgresClient.getInstance(vertx, TENANT_ID).delete(EmployeeDao.TABLE, new Criterion(), employeeTableDeleteEvent -> {
+        pgClient.delete(EmployeeDao.TABLE, new Criterion(), employeeTableDeleteEvent -> {
           if (employeeTableDeleteEvent.failed()) {
             context.fail(employeeTableDeleteEvent.cause());
           } else {
-            PostgresClient.getInstance(vertx, TENANT_ID).delete(LocationDao.TABLE, new Criterion(), locationTableDeleteEvent -> {
+            pgClient.delete(LocationDao.TABLE, new Criterion(), locationTableDeleteEvent -> {
               if (locationTableDeleteEvent.failed()) {
                 context.fail(locationTableDeleteEvent.cause());
+              } else {
+                async.complete();
               }
             });
           }

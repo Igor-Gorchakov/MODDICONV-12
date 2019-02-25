@@ -6,7 +6,7 @@ import org.folio.rest.jaxrs.model.Ticket;
 import java.util.Optional;
 
 public interface TicketDao {
-  public static final String TABLE = "tickets";
+  String TABLE = "tickets";
 
   Future<Optional<Ticket>> getById(String id);
 

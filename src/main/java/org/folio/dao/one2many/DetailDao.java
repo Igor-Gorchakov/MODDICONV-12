@@ -6,7 +6,7 @@ import org.folio.rest.jaxrs.model.Detail;
 import java.util.Optional;
 
 public interface DetailDao {
-  public static final String TABLE = "details";
+  String TABLE = "details";
 
   Future<Optional<Detail>> getById(String id);
 

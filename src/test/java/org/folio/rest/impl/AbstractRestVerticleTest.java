@@ -37,32 +37,10 @@ public abstract class AbstractRestVerticleTest {
     Async async = context.async();
     vertx = Vertx.vertx();
 
-    useExternalDatabase = System.getProperty(
-      "org.folio.converter.storage.test.database",
-      "embedded");
+    PostgresClient.setIsEmbedded(true);
+    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
-    switch (useExternalDatabase) {
-      case "environment":
-        System.out.println("Using environment settings");
-        break;
-      case "external":
-        String postgresConfigPath = System.getProperty(
-          "org.folio.converter.storage.test.config",
-          "/postgres-conf-local.json");
-        PostgresClient.setConfigFilePath(postgresConfigPath);
-        break;
-      case "embedded":
-        PostgresClient.setIsEmbedded(true);
-        PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-        break;
-      default:
-        String message = "No understood database choice made." +
-          "Please set org.folio.converter.storage.test.database" +
-          "to 'external', 'environment' or 'embedded'";
-        throw new Exception(message);
-    }
-
-    TenantClient tenantClient = new TenantClient(OKAPI_URL, "diku", "dummy-token");
+    TenantClient tenantClient = new TenantClient(OKAPI_URL, TENANT_ID, "dummy-token");
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions()
       .setConfig(new JsonObject().put("http.port", PORT));
     vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, res -> {

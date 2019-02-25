@@ -6,7 +6,7 @@ import org.folio.rest.jaxrs.model.Person;
 import java.util.Optional;
 
 public interface PersonDao {
-  public static final String TABLE = "persons";
+  String TABLE = "persons";
 
   Future<Optional<Person>> getById(String id);
 

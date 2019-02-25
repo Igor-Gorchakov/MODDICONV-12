@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import com.jayway.restassured.RestAssured;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.http.HttpStatus;
@@ -186,13 +187,17 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
 
   @Override
   public void clearTables(TestContext context) {
-    PostgresClient.getInstance(vertx, TENANT_ID).delete(PersonDao.TABLE, new Criterion(), personTableDeleteEvent -> {
+    Async async = context.async();
+    PostgresClient pgClient = PostgresClient.getInstance(vertx, TENANT_ID);
+    pgClient.delete(PersonDao.TABLE, new Criterion(), personTableDeleteEvent -> {
       if (personTableDeleteEvent.failed()) {
         context.fail(personTableDeleteEvent.cause());
       } else {
-        PostgresClient.getInstance(vertx, TENANT_ID).delete(PassportDao.TABLE, new Criterion(), passportTableDeleteEvent -> {
+        pgClient.delete(PassportDao.TABLE, new Criterion(), passportTableDeleteEvent -> {
           if (passportTableDeleteEvent.failed()) {
             context.fail(passportTableDeleteEvent.cause());
+          } else {
+            async.complete();
           }
         });
       }
