@@ -35,10 +35,11 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
    * 1. Create Passport and Person that references to the Passport
    * 2. Save Passport
    * 3. Try to save Person
+   * 4. Get and assert Passport and Person
    */
   @Test
   public void shouldSavePersonWithCorrespondingPassportId() {
-    // given
+    // Create Passport and Person that references to the Passport
     Passport passport = new Passport()
       .withId(UUID.randomUUID().toString())
       .withSeries("EE4519");
@@ -48,19 +49,14 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .withWeight(80)
       .withPassportId(passport.getId());
 
-    // when
+    // Save Passport
     savePassport(passport);
+    // Try to save Person
     savePerson(person);
 
-    //then
-    RestAssured.given()
-      .spec(spec)
-      .when()
-      .get(PERSON_SERVICE_URL + "/" + person.getId())
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .body("id", is(person.getId()))
-      .body("passportId", is(passport.getId()));
+    // Get and assert Passport and Person
+    getAndAssertPerson(person);
+    getAndAssertPassport(passport);
   }
 
   /**
@@ -68,18 +64,22 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
    * Saves Person if reference to the Passport is null and there is no Passport data stored.
    * 1. Create Person with null reference to Passport
    * 2. Try to save Person
+   * 3. Get and assert person
    */
   @Test
   public void shouldSavePerson_IfPassportReferenceIsNull() {
-    // given
+    // Create Person with null reference to Passport
     Person person = new Person()
       .withId(UUID.randomUUID().toString())
       .withHeight(150)
       .withWeight(65)
       .withPassportId(null);
 
-    // when
+    // Try to save Person
     savePerson(person);
+
+    // Get and assert person
+    getAndAssertPerson(person);
   }
 
   /**
@@ -88,20 +88,25 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
    * 1. Create Passport and Person with null Passport's UUID
    * 2. Save Passport
    * 3. Try to save Person
+   * 4. Get and assert Passport and Person
    */
   @Test
-  public void shouldSavePerson_IfPassportReferenceIsNullButPassportExist() {
-    // given
+  public void shouldSavePerson_IfPassportReferenceIsNullButPassportExists() {
+    // Create Passport and Person with null Passport's UUID
     String passportReference = null;
     Person person = new Person()
       .withId(UUID.randomUUID().toString()).withHeight(175).withWeight(72)
       .withPassportId(passportReference);
     Passport passport = new Passport().withId(UUID.randomUUID().toString()).withSeries("EE009122");
 
-    // when
+    // Save Passport
     savePassport(passport);
-    //then
+    // Try to save Person
     savePerson(person);
+
+    // Get and assert Passport and Person
+    getAndAssertPassport(passport);
+    getAndAssertPerson(person);
   }
 
   /**
@@ -112,20 +117,21 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
    * 1. Create Passport and Person with wrong Passport's UUID
    * 2. Save Passport
    * 3. Try to save Person
+   * 4. Get and assert Passport
    */
   @Test
   public void shouldReturn422Response_IfReferenceToPassportIsWrong() {
-    // given
+    // Create Passport and Person with wrong Passport's UUID
     String wrongPassportId = UUID.randomUUID().toString();
     Person person = new Person()
       .withId(UUID.randomUUID().toString()).withHeight(180).withWeight(75)
       .withPassportId(wrongPassportId);
     Passport passport = new Passport().withId(UUID.randomUUID().toString()).withSeries("EE0011209");
 
-    // when
+    // Save Passport
     savePassport(passport);
 
-    //then
+    // Try to save Person
     RestAssured.given()
       .spec(spec)
       .body(person)
@@ -133,6 +139,9 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .post(PERSON_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+
+    // Get and assert Passport
+    getAndAssertPassport(passport);
   }
 
   /**
@@ -142,20 +151,22 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
    * 2. Save Passport
    * 3. Save 1st Person
    * 4. Try to save 2nd Person
+   * 5. Get and assert 1st Person
    */
   @Test
   public void shouldReturn422Response_If2PersonsReferTo1Passport() {
-    // given
+    // Create 1 Passport and 2 Persons with the same reference to the Password
     String passportId = UUID.randomUUID().toString();
     Person person1 = new Person().withId(UUID.randomUUID().toString()).withHeight(160).withWeight(55).withPassportId(passportId);
     Person person2 = new Person().withId(UUID.randomUUID().toString()).withHeight(175).withWeight(74).withPassportId(passportId);
     Passport passport = new Passport().withId(passportId).withSeries("ZA780012");
 
-    // when
+    // Save Passport
     savePassport(passport);
+    // Save 1st Person
     savePerson(person1);
 
-    //then
+    // Try to save 2nd Person
     RestAssured.given()
       .spec(spec)
       .body(person2)
@@ -163,6 +174,33 @@ public class One2OneRelationshipTest extends AbstractRestVerticleTest {
       .post(PERSON_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+
+    // Get and assert 1st Person
+    getAndAssertPerson(person1);
+  }
+
+  private void getAndAssertPerson(Person person) {
+    RestAssured.given()
+      .spec(spec)
+      .when()
+      .get(PERSON_SERVICE_URL + "/" + person.getId())
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("id", is(person.getId()))
+      .body("passportId", is(person.getPassportId()))
+      .body("height", is(person.getHeight()))
+      .body("weight", is(person.getWeight()));
+  }
+
+  private void getAndAssertPassport(Passport passport) {
+    RestAssured.given()
+      .spec(spec)
+      .when()
+      .get(PASSPORT_SERVICE_URL + "/" + passport.getId())
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("id", is(passport.getId()))
+      .body("series", is(passport.getSeries()));
   }
 
   private void savePerson(Person person) {

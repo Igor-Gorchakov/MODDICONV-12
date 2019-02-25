@@ -118,6 +118,18 @@ types:
           body:
             text/plain:
               example: "Internal server error"
+    /{id}:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                schema: airPlane
+          500:
+            description: "Internal server error"
+            body:
+              text/plain:
+                example: "Internal server error"
   /passport:
     post:
       body:
@@ -133,6 +145,18 @@ types:
           body:
             text/plain:
               example: "Internal server error"
+    /{id}:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                schema: passport
+          500:
+            description: "Internal server error"
+            body:
+              text/plain:
+                example: "Internal server error"
   /person:
     post:
       body:

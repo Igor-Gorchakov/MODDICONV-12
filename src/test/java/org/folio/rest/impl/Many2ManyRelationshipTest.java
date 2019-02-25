@@ -42,7 +42,8 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
    * 5. Create Ticket to Carl to fly to Boston
    * 6. Create Ticket to Alice to fly to California
    * 7. Create Ticket to Alice to fly to Boston
-   * 8. Try to save tickets
+   * 8. Try to save Tickets
+   * 9. Get and assert Tickets
    */
   @Test
   public void shouldSaveTickets() {
@@ -68,12 +69,18 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
     saveTicket(carlToBoston);
     saveTicket(aliceToCalifornia);
     saveTicket(aliceToBoston);
+
+    getAndAssertTicket(carlToBoston);
+    getAndAssertTicket(carlToCalifornia);
+    getAndAssertTicket(aliceToBoston);
+    getAndAssertTicket(aliceToCalifornia);
   }
 
   /**
    * Testing fk referential integrity.
    * 1. Create Ticket with null references to Employee and Location
    * 2. Try to save Ticket
+   * 3. Get and assert Ticket
    */
   @Test
   public void shouldSaveTicket_IfReferencesAreNull() {
@@ -81,24 +88,10 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
     Ticket ticket = new Ticket().withId(UUID.randomUUID().toString()).withEmployeeId(null).withLocationId(null);
 
     // when
-    RestAssured.given()
-      .spec(spec)
-      .body(ticket)
-      .when()
-      .post(TICKET_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveTicket(ticket);
 
     // then
-    RestAssured.given()
-      .spec(spec)
-      .when()
-      .get(TICKET_SERVICE_URL + "/" + ticket.getId())
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .body("id", is(ticket.getId()))
-      .body("employeeId", is(ticket.getEmployeeId()))
-      .body("locationId", is(ticket.getLocationId()));
+    getAndAssertTicket(ticket);
   }
 
   /**
@@ -107,6 +100,7 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
    * 2. Create Ticket with null references to Employee and Location
    * 3. Save Employee and Location
    * 4. Try to save Ticket
+   * 5. Get and assert Ticket
    */
   @Test
   public void shouldSaveTicket_IfReferencesAreNullButEmployeeAndLocationExist() {
@@ -120,13 +114,8 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
     saveLocation(location);
 
     // then
-    RestAssured.given()
-      .spec(spec)
-      .body(ticket)
-      .when()
-      .post(TICKET_SERVICE_URL)
-      .then()
-      .statusCode(HttpStatus.SC_CREATED);
+    saveTicket(ticket);
+    getAndAssertTicket(ticket);
   }
 
   /**
@@ -157,6 +146,18 @@ public class Many2ManyRelationshipTest extends AbstractRestVerticleTest {
       .post(TICKET_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+  }
+
+  private void getAndAssertTicket(Ticket ticket) {
+    RestAssured.given()
+      .spec(spec)
+      .when()
+      .get(TICKET_SERVICE_URL + "/" + ticket.getId())
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("id", is(ticket.getId()))
+      .body("employeeId", is(ticket.getEmployeeId()))
+      .body("locationId", is(ticket.getLocationId()));
   }
 
   private void saveLocation(Location location) {

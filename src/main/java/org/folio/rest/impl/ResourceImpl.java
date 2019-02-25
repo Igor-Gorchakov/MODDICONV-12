@@ -1,10 +1,6 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import org.folio.dao.many2many.EmployeeDao;
 import org.folio.dao.many2many.LocationDao;
 import org.folio.dao.many2many.TicketDao;
@@ -20,13 +16,7 @@ import org.folio.dao.one2one.PersonDao;
 import org.folio.dao.one2one.impl.PassportDaoImpl;
 import org.folio.dao.one2one.impl.PersonDaoImpl;
 import org.folio.dataimport.util.ExceptionHelper;
-import org.folio.rest.jaxrs.model.AirPlane;
-import org.folio.rest.jaxrs.model.Detail;
-import org.folio.rest.jaxrs.model.Employee;
-import org.folio.rest.jaxrs.model.Location;
-import org.folio.rest.jaxrs.model.Passport;
-import org.folio.rest.jaxrs.model.Person;
-import org.folio.rest.jaxrs.model.Ticket;
+import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.jaxrs.resource.Resource;
 import org.folio.rest.tools.utils.TenantTool;
 
@@ -150,6 +140,21 @@ public class ResourceImpl implements Resource {
   }
 
   @Override
+  public void getResourceAirPlaneById(String id, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext(c -> {
+      try {
+        airPlaneDao.getById(id)
+          .map(ar -> (Response) GetResourceAirPlaneByIdResponse.respond200WithApplicationJson(ar.get()))
+          .otherwise(ExceptionHelper::mapExceptionToResponse)
+          .setHandler(asyncResultHandler);
+      } catch (Exception e) {
+        asyncResultHandler.handle(Future.succeededFuture(
+          ExceptionHelper.mapExceptionToResponse(e)));
+      }
+    });
+  }
+
+  @Override
   public void postResourcePassport(Passport entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext(v -> {
       try {
@@ -159,6 +164,21 @@ public class ResourceImpl implements Resource {
           .setHandler(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(ExceptionHelper.mapExceptionToResponse(e)));
+      }
+    });
+  }
+
+  @Override
+  public void getResourcePassportById(String id, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext(c -> {
+      try {
+        passportDao.getById(id)
+          .map(ar -> (Response) GetResourcePassportByIdResponse.respond200WithApplicationJson(ar.get()))
+          .otherwise(ExceptionHelper::mapExceptionToResponse)
+          .setHandler(asyncResultHandler);
+      } catch (Exception e) {
+        asyncResultHandler.handle(Future.succeededFuture(
+          ExceptionHelper.mapExceptionToResponse(e)));
       }
     });
   }

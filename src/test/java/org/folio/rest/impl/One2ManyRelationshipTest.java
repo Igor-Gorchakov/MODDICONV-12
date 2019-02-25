@@ -33,39 +33,26 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
    * Testing fk referential integrity.
    * 1. Create AirPlane
    * 2. Create Details with corresponding references to AirPlane
-   * 3. Save Airplane
+   * 3. Save AirPlane
    * 4. Try to save Details
+   * 5. Get and assert AirPlane and Details
    */
   @Test
   public void shouldSaveAirPlaneWith2Details() {
-    // given
+    // Create AirPlane, create Details with corresponding references to AirPlane
     AirPlane a380 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A380");
     Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing").withAirPlaneId(a380.getId());
     Detail rightWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("right wing").withAirPlaneId(a380.getId());
 
-    // when
+    // Save AirPlane, try to save Details
     saveAirPlane(a380);
     saveDetail(leftWing);
     saveDetail(rightWing);
 
-    // then
-    RestAssured.given()
-      .spec(spec)
-      .when()
-      .get(DETAIL_SERVICE_URL + "/" + leftWing.getId())
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .body("id", is(leftWing.getId()))
-      .body("airPlaneId", is(a380.getId()));
-
-    RestAssured.given()
-      .spec(spec)
-      .when()
-      .get(DETAIL_SERVICE_URL + "/" + rightWing.getId())
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .body("id", is(rightWing.getId()))
-      .body("airPlaneId", is(a380.getId()));
+    // Get and assert AirPlane and Details
+    getAndAssertAirPlane(a380);
+    getAndAssertDetail(leftWing);
+    getAndAssertDetail(rightWing);
   }
 
   /**
@@ -73,14 +60,18 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
    * Returns 200 response (OK) if trying to save Detail with null reference to the AirPlane.
    * 1. Create Detail with null reference to the AirPlane
    * 2. Try to save Detail
+   * 3. Get and assert Detail
    */
   @Test
   public void shouldSaveDetail_IfReferenceIsNull() {
-    // given
-    Detail detail = new Detail().withId(UUID.randomUUID().toString()).withCaption("wing").withAirPlaneId(null);
+    // Create Detail with null reference to the AirPlane
+    Detail wing = new Detail().withId(UUID.randomUUID().toString()).withCaption("wing").withAirPlaneId(null);
 
-    // then
-    saveDetail(detail);
+    // Try to save Detail
+    saveDetail(wing);
+
+    // Get and assert Detail
+    getAndAssertDetail(wing);
   }
 
   /**
@@ -89,18 +80,19 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
    * 2. Create Detail with null reference to the AirPlane
    * 3. Save AirPlane
    * 4. Try to save Detail
+   * 5. Get and assert AirPlane and Detail
    */
   @Test
   public void shouldSaveDetail_IfReferenceIsNullButAirPlaneExists() {
-    // given
+    // Create AirPlane, create Detail with null reference to the AirPlane
     AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
     Detail tailSection = new Detail().withId(UUID.randomUUID().toString()).withCaption("tail section")
       .withAirPlaneId(null);
 
-    // when
+    // Save AirPlane
     saveAirPlane(a370);
 
-    // then
+    // Try to save Detail
     RestAssured.given()
       .spec(spec)
       .body(tailSection)
@@ -108,31 +100,41 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .post(DETAIL_SERVICE_URL)
       .then()
       .statusCode(HttpStatus.SC_CREATED);
+
+    // Get and assert AirPlane and Detail
+    getAndAssertAirPlane(a370);
+    getAndAssertDetail(tailSection);
   }
 
   /**
    * Testing fk referential integrity.
    * Returns 422 response (Uprocessable entity) if trying to save Detail with wrong reference to the AirPlane.
    * 1. Create AirPlane
-   * 2. Create detail with corresponding reference to the AirPlane
+   * 2. Create detail with correct reference to the AirPlane
    * 3. Create detail with wrong UUID to the AirPlane
    * 4. Save AirPlane
-   * 5. Try to save Detail from the 3rd step
+   * 5. Save Detail with correct reference
+   * 6. Try to save Detail with wrong reference
+   * 7. Get and assert AirPlane and Detail with correct reference
    */
   @Test
   public void shouldReturn422Response_IfReferenceToAirPlaneIsWrong() {
-    // given
+    // Create AirPlane
     String wrongAirPlaneReference = UUID.randomUUID().toString();
     AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
-    Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing").withAirPlaneId(a370.getId());
+    // Create detail with correct reference to the AirPlane
+    Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing")
+      .withAirPlaneId(a370.getId());
+    // Create detail with wrong UUID to the AirPlane
     Detail rightWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("right wing")
       .withAirPlaneId(wrongAirPlaneReference);
 
-    // when
+    // Save AirPlane
     saveAirPlane(a370);
+    // Save Detail with correct reference
     saveDetail(leftWing);
 
-    // then
+    // Try to save Detail with wrong reference
     RestAssured.given()
       .spec(spec)
       .body(rightWing)
@@ -141,14 +143,31 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .then()
       .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
+    // Get and assert AirPlane and Detail with correct reference
+    getAndAssertAirPlane(a370);
+    getAndAssertDetail(leftWing);
+  }
+
+  private void getAndAssertAirPlane(AirPlane airPlane) {
     RestAssured.given()
       .spec(spec)
       .when()
-      .get(DETAIL_SERVICE_URL + "/" + leftWing.getId())
+      .get(AIRPLANE_SERVICE_URL + "/" + airPlane.getId())
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("id", is(leftWing.getId()))
-      .body("airPlaneId", is(a370.getId()));
+      .body("id", is(airPlane.getId()))
+      .body("caption", is(airPlane.getCaption()));
+  }
+
+  private void getAndAssertDetail(Detail detail) {
+    RestAssured.given()
+      .spec(spec)
+      .when()
+      .get(DETAIL_SERVICE_URL + "/" + detail.getId())
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("id", is(detail.getId()))
+      .body("airPlaneId", is(detail.getAirPlaneId()));
   }
 
   private void saveDetail(Detail leftWing) {
