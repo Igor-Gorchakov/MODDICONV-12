@@ -35,6 +35,7 @@ public abstract class AbstractRestVerticleTest {
     Async async = context.async();
     vertx = Vertx.vertx();
 
+    PostgresClient.stopEmbeddedPostgres();
     PostgresClient.setIsEmbedded(true);
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
