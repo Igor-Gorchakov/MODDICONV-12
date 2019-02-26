@@ -40,7 +40,7 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
   @Test
   public void shouldSaveAirPlaneWith2Details() {
     // Create AirPlane, create Details with corresponding references to AirPlane
-    AirPlane a380 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A380");
+    AirPlane a380 = new AirPlane().withId(UUID.randomUUID().toString()).withModel("A380");
     Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing").withAirPlaneId(a380.getId());
     Detail rightWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("right wing").withAirPlaneId(a380.getId());
 
@@ -85,7 +85,7 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
   @Test
   public void shouldSaveDetail_IfReferenceIsNullButAirPlaneExists() {
     // Create AirPlane, create Detail with null reference to the AirPlane
-    AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
+    AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withModel("A370");
     Detail tailSection = new Detail().withId(UUID.randomUUID().toString()).withCaption("tail section")
       .withAirPlaneId(null);
 
@@ -121,7 +121,7 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
   public void shouldReturn422Response_IfReferenceToAirPlaneIsWrong() {
     // Create AirPlane
     String wrongAirPlaneReference = UUID.randomUUID().toString();
-    AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withCaption("A370");
+    AirPlane a370 = new AirPlane().withId(UUID.randomUUID().toString()).withModel("A370");
     // Create detail with correct reference to the AirPlane
     Detail leftWing = new Detail().withId(UUID.randomUUID().toString()).withCaption("left wing")
       .withAirPlaneId(a370.getId());
@@ -156,7 +156,7 @@ public class One2ManyRelationshipTest extends AbstractRestVerticleTest {
       .then()
       .statusCode(HttpStatus.SC_OK)
       .body("id", is(airPlane.getId()))
-      .body("caption", is(airPlane.getCaption()));
+      .body("model", is(airPlane.getModel()));
   }
 
   private void getAndAssertDetail(Detail detail) {

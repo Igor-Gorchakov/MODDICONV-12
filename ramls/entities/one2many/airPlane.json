@@ -8,8 +8,8 @@
       "description": "UUID",
       "type": "string"
     },
-    "caption": {
-      "description": "caption",
+    "model": {
+      "description": "Plane model",
       "type": "string"
     }
   }
